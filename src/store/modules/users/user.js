@@ -4,6 +4,7 @@ const User = {
 	state: {
 		currentUser: null,
 		allUsers: [],
+		friend: null,
 	},
 	getters: {
 		currentUser(state) {
@@ -14,6 +15,10 @@ const User = {
 			//   logged in user
 			return state.allUsers;
 		},
+		friend(state) {
+			//   logged in user
+			return state.friend;
+		},
 	},
 	actions: {
 		async registerUser(context, user) {
@@ -22,7 +27,15 @@ const User = {
 				const response = await postReq('registration/', user);
 				return response;
 			} catch (e) {
-				throw e;
+				const errors = e.response.data;
+				const error = [];
+				for (const key in errors) {
+					if (Object.hasOwnProperty.call(errors, key)) {
+						error.push(errors[key]);
+					}
+				}
+
+				throw error[0][0];
 			}
 		},
 		async loginUser(context, user) {
@@ -34,8 +47,15 @@ const User = {
 					return response;
 				}
 			} catch (e) {
-				console.log(e);
-				throw e;
+				const errors = e.response.data;
+				const error = [];
+				for (const key in errors) {
+					if (Object.hasOwnProperty.call(errors, key)) {
+						error.push(errors[key]);
+					}
+				}
+
+				throw error[0][0];
 			}
 		},
 		async getUser({ commit }) {
@@ -52,8 +72,18 @@ const User = {
 		async getAllUsers({ commit }) {
 			// await getReq('users/');
 			try {
-				const allUsers = await getReq('all-users/');
+				const allUsers = await getReq('all-users');
 				commit('setAllUsers', allUsers);
+			} catch (error) {
+				console.log(error);
+			}
+		},
+		async getFriendInfo({ commit }, id) {
+			// await getReq('users/');
+			console.log('hetting info', id);
+			try {
+				const friendInfo = await getReq(`all-users/${id}`);
+				commit('setFriendInfo', friendInfo);
 			} catch (error) {
 				console.log(error);
 			}
@@ -65,6 +95,9 @@ const User = {
 		},
 		setAllUsers(state, allUsers) {
 			state.allUsers = allUsers;
+		},
+		setFriendInfo(state, friendInfo) {
+			state.friend = friendInfo;
 		},
 	},
 };

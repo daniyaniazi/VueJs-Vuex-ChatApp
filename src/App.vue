@@ -1,9 +1,22 @@
 <template>
 	<div id="app">
+		<Notification v-if="notification.msg" />
 		<router-view />
 	</div>
 </template>
-
+<script>
+import { mapGetters } from 'vuex';
+import Notification from './components/Notification.vue';
+export default {
+	name: 'App',
+	computed: {
+		...mapGetters(['notification']),
+	},
+	components: {
+		Notification,
+	},
+};
+</script>
 <style>
 #app {
 	font-family: Avenir, Helvetica, Arial, sans-serif;

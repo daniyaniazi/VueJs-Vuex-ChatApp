@@ -11,12 +11,12 @@
 			<h2>Contacts</h2>
 			<div v-for="user in allUsers" :key="user.pk">
 				<b-list-group-item
-					v-if="user.user_id != currentUser.pk"
+					v-if="user.id != currentUser.pk"
 					router-component-name="router-link"
-					:to="`chat/${user.user_id}/`"
+					:to="`chat/${String(user.id)}/`"
 				>
-					{{ user.email }}</b-list-group-item
-				>
+					{{ user.username }}
+				</b-list-group-item>
 			</div>
 		</b-list-group>
 	</div>
@@ -24,16 +24,23 @@
 
 <script>
 import { mapActions, mapGetters } from 'vuex';
+
 export default {
 	name: 'Home',
 	computed: {
 		...mapGetters(['currentUser', 'allUsers']),
 	},
 	methods: {
-		...mapActions(['getUser', 'getAllUsers']),
+		...mapActions(['getUser', 'getAllUsers', 'setNotification']),
 		logout() {
 			localStorage.removeItem('token');
+
 			this.$router.push('login/');
+			this.setNotification({
+				msg: 'Succesfully logged out',
+				type: 'success',
+				color: 'green',
+			});
 		},
 	},
 	async mounted() {

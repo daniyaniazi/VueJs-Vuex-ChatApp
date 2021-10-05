@@ -28,18 +28,15 @@ const Chats = {
 			// context.dispatch('loadUserChats');
 		},
 		async loadUserChats({ commit }) {
-			let messeges = [];
 			const chatsRef = await query(ref(db, 'messeges'), orderByValue('time'));
 			await onValue(chatsRef, (snapshot) => {
+				let messeges = [];
 				snapshot.forEach(function (chatSnapshot) {
 					var chat = chatSnapshot.val();
 					messeges.push(chat);
+					commit('setChats', messeges);
 				});
-				// let data = snapshot.val();
-				// console.log(data);
-				// commit('setChats', data);
 			});
-			commit('setChats', messeges);
 		},
 	},
 	mutations: {

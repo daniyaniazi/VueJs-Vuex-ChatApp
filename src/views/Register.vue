@@ -55,10 +55,14 @@
 			</b-form-group>
 			<b-button type="submit" variant="primary">SignUp</b-button>
 		</b-form>
+		<div class="mt-1">
+			<b-link to="/login"> Have an account? SignIn here</b-link>
+		</div>
 	</div>
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 export default {
 	name: 'Register',
 	data() {
@@ -72,13 +76,25 @@ export default {
 		};
 	},
 	methods: {
+		...mapActions(['setNotification']),
 		async signUp() {
 			console.log(this.user);
 			const { key } = await this.$store
 				.dispatch('registerUser', this.user)
-				.catch((error) => console.log(error));
+				.catch((error) => {
+					this.setNotification({
+						msg: error,
+						type: 'error',
+						color: 'red',
+					});
+				});
 			if (key) {
 				console.log('successfully signup');
+				this.setNotification({
+					msg: 'Succesfully register',
+					type: 'success',
+					color: 'green',
+				});
 				this.$router.push('/login');
 			}
 		},
@@ -90,6 +106,7 @@ export default {
 .form {
 	width: 40%;
 	margin: auto;
+	margin-top: 5%;
 }
 label {
 	text-align: left;
@@ -97,5 +114,15 @@ label {
 }
 input {
 	margin-bottom: 10px !important;
+}
+@media screen and (max-width: 800px) {
+	.form {
+		width: 60%;
+	}
+}
+@media screen and (max-width: 600px) {
+	.form {
+		width: 80%;
+	}
 }
 </style>

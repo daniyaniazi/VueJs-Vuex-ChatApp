@@ -4,25 +4,37 @@
 		<b-card-group deck>
 			<b-card
 				border-variant="primary"
-				:header="openChatUsername"
+				:header="friend.username"
 				header-bg-variant="primary"
 				header-text-variant="white"
 				align="center"
+				v-if="friend"
 			>
-				<div
-					class="chats"
-					v-chat-scroll="{ always: false, smooth: true }"
-					v-for="chat in chats"
-					:key="chat.id"
-				>
-					<b-card-text
-						v-if="
-							chat.room === `${currentUser.pk + '_' + openChatUsername}` ||
-							chat.room === `${openChatUsername + '_' + currentUser.pk}`
-						"
-						:class="`${chat.sendBy == currentUser.pk ? 'sent' : 'recieve'}`"
-						>{{ chat.message }}</b-card-text
+				<div class="chats-container" v-chat-scroll>
+					<div
+						class="chats"
+						v-chat-scroll="{ always: false, smooth: true }"
+						v-for="chat in chats"
+						:key="chat.id"
 					>
+						<b-card-text
+							v-if="
+								chat.room === `${currentUser.pk + '_' + openChatUsername}` ||
+								chat.room === `${openChatUsername + '_' + currentUser.pk}`
+							"
+							:class="`${chat.sendBy == currentUser.pk ? 'sent' : 'recieve'}`"
+							><div>
+								<small v-if="chat.sendBy == currentUser.pk"
+									>You <span>{{ getTime(chat.time) }}</span></small
+								>
+								<small v-else>
+									{{ friend.username }}
+									<span>{{ getTime(chat.time) }}</span></small
+								>
+								<div>{{ chat.message }}</div>
+							</div></b-card-text
+						>
+					</div>
 				</div>
 				<b-row class="my-3">
 					<b-col sm="3">
@@ -47,6 +59,7 @@
 </template>
 <script>
 import { mapActions, mapGetters } from 'vuex';
+import moment from 'moment';
 export default {
 	name: 'Chat',
 	data() {
@@ -56,12 +69,13 @@ export default {
 		};
 	},
 	computed: {
-		...mapGetters(['currentUser', 'chats']),
+		...mapGetters(['currentUser', 'chats', 'friend']),
 		// from store
 	},
 	async created() {
 		try {
 			await this.getUser();
+			await this.getFriendInfo(Number(this.openChatUsername));
 			await this.loadUserChats({
 				senderId: this.currentUser.pk,
 				recieverId: Number(this.openChatUsername),
@@ -69,10 +83,10 @@ export default {
 		} catch (error) {
 			console.log(error);
 		}
-		console.log(this.openChatUsername);
 	},
+
 	methods: {
-		...mapActions(['getUser', 'loadUserChats', 'sendMessage']),
+		...mapActions(['getUser', 'loadUserChats', 'sendMessage', 'getFriendInfo']),
 		async sendNewMessage() {
 			let newMessage = {
 				room: `${this.currentUser.pk + '_' + this.openChatUsername}`,
@@ -89,6 +103,10 @@ export default {
 			await this.loadUserChats();
 			console.log(this.chats);
 		},
+		getTime(timestamp) {
+			console.log(moment(timestamp).format('hh:mm'));
+			return moment(timestamp).format('hh:mm');
+		},
 	},
 };
 </script>
@@ -97,6 +115,10 @@ export default {
 .chat-container {
 	width: 40%;
 	margin: auto;
+}
+.chats-container {
+	height: 380px;
+	overflow-y: scroll;
 }
 .chats {
 	margin-bottom: 5px;
@@ -112,6 +134,10 @@ export default {
 	padding: 10px;
 	background: lightgray;
 	margin-right: 30%;
+}
+small {
+	font-weight: 800;
+	font-size: 12px;
 }
 @media screen and (max-width: 800px) {
 	.chat-container {
