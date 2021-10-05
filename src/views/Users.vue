@@ -1,32 +1,66 @@
 <template>
 	<div class="users-list">
+		<b-container class="logout-container">
+			<b-row class="my-4" align-h="end">
+				<b-col sm="12" md="2">
+					<b-button @click="logout" variant="danger">Logout</b-button></b-col
+				></b-row
+			></b-container
+		>
 		<b-list-group>
-			<b-list-group-item router-component-name="router-link" to="chat/1">
-				User1</b-list-group-item
-			>
-			<b-list-group-item router-component-name="router-link" to="chat/2">
-				User2</b-list-group-item
-			>
-			<b-list-group-item router-component-name="router-link" to="chat/3">
-				User3</b-list-group-item
-			>
+			<h2>Contacts</h2>
+			<div v-for="user in allUsers" :key="user.pk">
+				<b-list-group-item
+					v-if="user.user_id != currentUser.pk"
+					router-component-name="router-link"
+					:to="`chat/${user.user_id}/`"
+				>
+					{{ user.email }}</b-list-group-item
+				>
+			</div>
 		</b-list-group>
 	</div>
 </template>
 
 <script>
+import { mapActions, mapGetters } from 'vuex';
 export default {
 	name: 'Home',
-	mounted() {
-		// SET CURRENT USER
-		// GET LIST OF USER
+	computed: {
+		...mapGetters(['currentUser', 'allUsers']),
+	},
+	methods: {
+		...mapActions(['getUser', 'getAllUsers']),
+		logout() {
+			localStorage.removeItem('token');
+			this.$router.push('login/');
+		},
+	},
+	async mounted() {
+		try {
+			await this.getUser();
+			await this.getAllUsers();
+		} catch (error) {
+			console.log(error);
+		}
 	},
 };
 </script>
 
 <style scoped>
 .users-list {
-	width: 60%;
+	width: 40%;
+	padding-top: 1%;
 	margin: auto;
+}
+@media screen and (max-width: 800px) {
+	.users-list {
+		width: 60%;
+	}
+}
+@media screen and (max-width: 600px) {
+	.users-list {
+		width: 80%;
+	}
 }
 </style>

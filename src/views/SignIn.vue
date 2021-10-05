@@ -55,12 +55,15 @@ export default {
 	methods: {
 		async signIn() {
 			console.log(this.user);
-			const { key } = await this.$store
-				.dispatch('loginUser', this.user)
-				.catch((error) => console.log(error));
-			if (key) {
-				console.log('successfully signIn');
-				this.$router.push('/');
+			try {
+				const { key } = await this.$store.dispatch('loginUser', this.user);
+
+				if (key) {
+					console.log('successfully signIn');
+					this.$router.push('/');
+				}
+			} catch (error) {
+				console.log(error);
 			}
 		},
 	},
@@ -69,7 +72,7 @@ export default {
 
 <style>
 .form {
-	width: 60%;
+	width: 40%;
 	margin: auto;
 }
 label {

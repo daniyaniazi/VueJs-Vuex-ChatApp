@@ -1,5 +1,6 @@
 <template>
 	<div class="chat-container">
+		<div id="nav"><router-link to="/">Contacts</router-link></div>
 		<b-card-group deck>
 			<b-card
 				border-variant="primary"
@@ -16,25 +17,25 @@
 				>
 					<b-card-text
 						v-if="
-							chat.senderId == currentUser &&
-							chat.recieverId == openChatUsername
+							chat.room === `${currentUser.pk + '_' + openChatUsername}` ||
+							chat.room === `${openChatUsername + '_' + currentUser.pk}`
 						"
-						:class="`${chat.sendBy == currentUser ? 'sent' : 'recieve'}`"
+						:class="`${chat.sendBy == currentUser.pk ? 'sent' : 'recieve'}`"
 						>{{ chat.message }}</b-card-text
 					>
 				</div>
 				<b-row class="my-3">
-					<b-col sm="2">
+					<b-col sm="3">
 						<label :for="`message`">Your message</label>
 					</b-col>
-					<b-col sm="8">
+					<b-col sm="6">
 						<b-form-input
 							:id="`message`"
 							type="text"
 							v-model="message"
 						></b-form-input>
 					</b-col>
-					<b-col sm="2">
+					<b-col sm="3">
 						<b-button variant="outline-primary" @click="sendNewMessage"
 							>send</b-button
 						>
@@ -50,7 +51,7 @@ export default {
 	name: 'Chat',
 	data() {
 		return {
-			openChatUsername: this.$route.params.id,
+			openChatUsername: Number(this.$route.params.id),
 			message: '',
 		};
 	},
@@ -59,26 +60,34 @@ export default {
 		// from store
 	},
 	async created() {
-		await this.loadUserChats({
-			senderId: this.currentUser,
-			recieverId: Number(this.openChatUsername),
-		});
+		try {
+			await this.getUser();
+			await this.loadUserChats({
+				senderId: this.currentUser.pk,
+				recieverId: Number(this.openChatUsername),
+			});
+		} catch (error) {
+			console.log(error);
+		}
+		console.log(this.openChatUsername);
 	},
 	methods: {
-		...mapActions(['loadUserChats', 'sendMessage']),
+		...mapActions(['getUser', 'loadUserChats', 'sendMessage']),
 		async sendNewMessage() {
 			let newMessage = {
-				senderId: this.currentUser,
+				room: `${this.currentUser.pk + '_' + this.openChatUsername}`,
+				senderId: this.currentUser.pk,
 				recieverId: this.openChatUsername,
 				message: this.message,
 				time: Date.now(),
-				sendBy: this.currentUser,
+				sendBy: this.currentUser.pk,
 			};
-			console.log(newMessage);
+
 			// firebase call
 			await this.sendMessage(newMessage);
-			await this.loadUserChats();
 			this.message = '';
+			await this.loadUserChats();
+			console.log(this.chats);
 		},
 	},
 };
@@ -86,7 +95,7 @@ export default {
 
 <style scoped>
 .chat-container {
-	width: 60%;
+	width: 40%;
 	margin: auto;
 }
 .chats {
@@ -103,5 +112,15 @@ export default {
 	padding: 10px;
 	background: lightgray;
 	margin-right: 30%;
+}
+@media screen and (max-width: 800px) {
+	.chat-container {
+		width: 60%;
+	}
+}
+@media screen and (max-width: 600px) {
+	.chat-container {
+		width: 80%;
+	}
 }
 </style>

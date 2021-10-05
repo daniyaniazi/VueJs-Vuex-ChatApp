@@ -88,7 +88,7 @@ export default {
 
 <style>
 .form {
-	width: 60%;
+	width: 40%;
 	margin: auto;
 }
 label {

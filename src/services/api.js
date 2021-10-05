@@ -7,7 +7,7 @@ const setHeaders = () => {
 	if (localStorage.getItem('token')) {
 		axios.defaults.headers.common[
 			'Authorization'
-		] = `token ${localStorage.getItem('token')}`;
+		] = `Token ${localStorage.getItem('token')}`;
 		console.log('token set ', localStorage.getItem('token'));
 	}
 };
@@ -20,7 +20,7 @@ export const getReq = async (enpoint) => {
 			return data;
 		})
 		.catch((error) => {
-			console.log(error);
+			throw error;
 		});
 };
 
@@ -35,3 +35,9 @@ export const postReq = async (enpoint, payload) => {
 			throw error;
 		});
 };
+
+// {
+// 	withCredentials: true,
+// 	credentials: 'include',
+// 	xsrfCookieName: 'csrftoken',
+// }

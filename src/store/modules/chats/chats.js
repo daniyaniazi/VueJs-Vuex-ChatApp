@@ -25,6 +25,7 @@ const Chats = {
 			await set(newPostRef, {
 				...payload,
 			});
+			// context.dispatch('loadUserChats');
 		},
 		async loadUserChats({ commit }) {
 			let messeges = [];

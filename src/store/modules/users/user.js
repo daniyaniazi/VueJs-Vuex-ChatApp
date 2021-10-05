@@ -2,7 +2,7 @@ import { getReq, postReq } from '../../../services/api';
 
 const User = {
 	state: {
-		currentUser: 1,
+		currentUser: null,
 		allUsers: [],
 	},
 	getters: {
@@ -12,7 +12,7 @@ const User = {
 		},
 		allUsers(state) {
 			//   logged in user
-			return state.AllUsers;
+			return state.allUsers;
 		},
 	},
 	actions: {
@@ -28,6 +28,7 @@ const User = {
 		async loginUser(context, user) {
 			try {
 				const response = await postReq('login/', user);
+				console.log(response);
 				if (response.key) {
 					localStorage.setItem('token', response.key);
 					return response;
@@ -38,20 +39,32 @@ const User = {
 			}
 		},
 		async getUser({ commit }) {
-			const user = await getReq('user/');
-			commit('setUser', user);
+			try {
+				const user = await getReq('user/');
+				console.log(user);
+
+				commit('setUser', user);
+			} catch (error) {
+				console.log(error);
+				throw error;
+			}
 		},
-		async getAllUser({ commit }) {
-			const allUsers = await getReq('users/');
-			commit('setAllUsers', allUsers);
+		async getAllUsers({ commit }) {
+			// await getReq('users/');
+			try {
+				const allUsers = await getReq('all-users/');
+				commit('setAllUsers', allUsers);
+			} catch (error) {
+				console.log(error);
+			}
 		},
 	},
 	mutations: {
 		setUser(state, user) {
 			state.currentUser = user;
 		},
-		setAllUser(state, allUsers) {
-			state.AllUsers = allUsers;
+		setAllUsers(state, allUsers) {
+			state.allUsers = allUsers;
 		},
 	},
 };
